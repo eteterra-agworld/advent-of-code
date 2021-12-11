@@ -6,6 +6,7 @@
   (apply = (conj board (first draw))))
 
 ; board score
+(defn score [{:keys [board draw]}] 0)
 
 ; define game state & game state reducer
 
