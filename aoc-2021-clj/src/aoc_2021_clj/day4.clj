@@ -1,21 +1,21 @@
 (ns aoc-2021-clj.day4
   (:require [clojure.string :as str]))
 
+(defn filter-out [coll from]
+  (filter (complement (into #{} coll)) from))
+
 (defn size-of [board] (-> (count board) Math/sqrt int))
 
 (defn bingo? [{:keys [board draw]}]
   (->> (partition (size-of board) board)
-       (map (fn [row] (= row draw)))
-       (some true?)
+       (map #(filter-out draw %))
+       (some empty?)
        (boolean)))
-
-(defn filter-out [coll & {:keys [from]}]
-  (filter (complement (into #{} coll)) from))
 
 (defn score 
   "final score is sum of all unmarked numbers * last number drawn"
   [{:keys [board draw]}]
-  (* (apply + (filter-out draw :from board)) (last draw)))
+  (* (apply + (filter-out draw board)) (last draw)))
 
 ; define game state & game state reducer
 
