@@ -5,9 +5,10 @@
   (filter (complement (into #{} coll)) from))
 
 (defn size-of [board] (-> (count board) Math/sqrt int))
+(defn rows-of [board] (partition (size-of board) board))
 
 (defn bingo? [{:keys [board draw]}]
-  (->> (partition (size-of board) board)
+  (->> (rows-of board)
        (map #(filter-out draw %))
        (some empty?)
        (boolean)))
