@@ -4,4 +4,7 @@
 
 (deftest submarine-bingo-game
   (testing "it has a winner"
-    (is (true? (bingo? {:board [0] :draw [0]})))))
+    (is (true? (bingo? {:board [0] :draw [0]}))))
+  
+  (testing "it has a loser"
+    (is (false? (bingo? {:board [0] :draw [1]})))))

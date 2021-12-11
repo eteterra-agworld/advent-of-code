@@ -3,8 +3,7 @@
 
 ; winning conditions
 (defn bingo? [{:keys [board draw]}]
-  (println board draw)
-  true)
+  (apply = (conj board (first draw))))
 
 ; board score
 
