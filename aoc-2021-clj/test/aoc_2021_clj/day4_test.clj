@@ -2,6 +2,9 @@
   (:require [clojure.test :refer :all]
             [aoc-2021-clj.day4 :refer :all]))
 
+(def create-board
+  [22 13 17 11 0 8 2 23 4 24 21 9 14 16 7 6 10 3 18 5 1 12 20 15 19])
+
 (deftest submarine-bingo-game
   (testing "it has a winner"
     (is (true? (bingo? {:board [0] :draw [0]}))))
@@ -12,4 +15,5 @@
   (testing "each board has a score"
     (is (= 0 (score {:board [0] :draw [0]})))
     (is (= 5 (score {:board [1 2 3] :draw [1]})))
+    (is (= (* 239 24) (score {:board create-board :draw [8 2 23 4 24]})))
     ))
