@@ -14,19 +14,20 @@
 (def epsilon-rate-from (comp binary->decimal (partial map least-common-key)))
 
 ; part 2
-(defn search-binary-numbers-by [predicate]
-  (fn [numbers]
-    (loop [remainder numbers index 0]
-    (let [bits (map #(nth % index) remainder)
-            bit (predicate (frequencies bits))
-            filtered-values (filter #(= bit (nth % index)) remainder)]
-        (if (= 0 (count filtered-values)) 
-          (binary->decimal (last remainder))
-          (recur filtered-values (inc index)))))))
+(defn filter-at [index predicate coll]
+    (let [bit (->> coll (map #(nth % index)) frequencies predicate)]
+      (filter #(= bit (nth % index)) coll)))
 
-(def tie? (comp (partial apply =) (partial map second)))
-(def oxygen-generator-rating-from (search-binary-numbers-by #(if (tie? %) \1 (most-common-key %))))
-(def co2-scrubber-rating-from (search-binary-numbers-by #(if (tie? %) \0 (least-common-key %))))
+(defn search-numbers [predicate numbers]
+  (loop [values numbers index 0]
+    (let [filtered-values (filter-at index predicate values)]
+      (if (= 0 (count filtered-values))
+        (binary->decimal (last values))
+        (recur filtered-values (inc index))))))
+
+(def equal-values? (comp (partial apply =) (partial map second)))
+(def oxygen-generator-rating-from (partial search-numbers #(if (equal-values? %) \1 (most-common-key %))))
+(def co2-scrubber-rating-from (partial search-numbers #(if (equal-values? %) \0 (least-common-key %))))
 
 (defn -main []
   (let [input (read-lines "files/day3.txt")
