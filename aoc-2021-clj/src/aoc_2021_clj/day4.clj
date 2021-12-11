@@ -6,7 +6,10 @@
   (apply = (conj board (first draw))))
 
 ; board score
-(defn score [{:keys [board draw]}] 0)
+(defn score 
+  "final score is sum of all unmarked numbers * last number drawn"
+  [{:keys [board draw]}]
+  (* (apply + (rest board)) (last draw)))
 
 ; define game state & game state reducer
 

@@ -11,4 +11,5 @@
 
   (testing "each board has a score"
     (is (= 0 (score {:board [0] :draw [0]})))
+    (is (= 5 (score {:board [1 2 3] :draw [1]})))
     ))
