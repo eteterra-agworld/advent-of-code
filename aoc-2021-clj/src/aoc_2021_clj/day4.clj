@@ -1,8 +1,13 @@
 (ns aoc-2021-clj.day4
   (:require [clojure.string :as str]))
 
+(defn size-of [board] (-> (count board) Math/sqrt int))
+
 (defn bingo? [{:keys [board draw]}]
-  (apply = (conj board (first draw))))
+  (->> (partition (size-of board) board)
+       (map (fn [row] (= row draw)))
+       (some true?)
+       (boolean)))
 
 (defn filter-out [coll & {:keys [from]}]
   (filter (complement (into #{} coll)) from))
