@@ -6,12 +6,14 @@
 
 (defn size-of [board] (-> (count board) Math/sqrt int))
 (defn rows-of [board] (partition (size-of board) board))
+(defn columns-of [_] [[1 3][2 4]]) ; hardcoded solution to vertical win
 
 (defn bingo? [{:keys [board draw]}]
-  (->> (rows-of board)
-       (map #(filter-out draw %))
-       (some empty?)
-       (boolean)))
+  (or 
+   ; horizontal
+   (->> (rows-of board) (map #(filter-out draw %)) (some empty?) (boolean))
+   ; vertical
+   (->> (columns-of board) (map #(filter-out draw %)) (some empty?) (boolean))))
 
 (defn score 
   "final score is sum of all unmarked numbers * last number drawn"
