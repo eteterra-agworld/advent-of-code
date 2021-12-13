@@ -6,7 +6,11 @@
 
 (defn size-of [board] (-> (count board) Math/sqrt int))
 (defn rows-of [board] (partition (size-of board) board))
-(defn columns-of [_] [[1 3][2 4]]) ; hardcoded solution to vertical win
+(defn columns-of [board]
+  (loop [result [] counter 0]
+    (if (< counter (size-of board))
+      (recur (conj result (take-nth (size-of board) (drop counter board))) (inc counter))
+      result)))
 
 (defn bingo? [{:keys [board draw]}]
   (or 
