@@ -4,6 +4,7 @@
 (defn filter-out [coll from]
   (filter (complement (into #{} coll)) from))
 
+; board
 (defn size-of [board] (-> (count board) Math/sqrt int))
 (defn rows-of [board] (partition (size-of board) board))
 (defn columns-of [board]
@@ -12,13 +13,19 @@
       (recur (conj columns (take-nth (size-of board) (drop shift board))) (inc shift))
       columns)))
 
-(defn bingo? [{:keys [board draw]}]
-  (or 
-   ; horizontal
-   (->> (rows-of board) (map #(filter-out draw %)) (some empty?) (boolean))
-   ; vertical
-   (->> (columns-of board) (map #(filter-out draw %)) (some empty?) (boolean))))
+; win conditions
+(defn entire-line-marked-off? [lines draw]
+  (->> lines (map #(filter-out draw %)) (some empty?) (boolean)))
 
+(defn horizontal-win? [board draw] (entire-line-marked-off? (rows-of board) draw))
+(defn vertical-win? [board draw] (entire-line-marked-off? (columns-of board) draw))
+
+(defn bingo? [{:keys [board draw]}]
+  (or
+   (horizontal-win? board draw)
+   (vertical-win? board draw)))
+
+; final score
 (defn score 
   "final score is sum of all unmarked numbers * last number drawn"
   [{:keys [board draw]}]
