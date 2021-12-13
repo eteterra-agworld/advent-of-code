@@ -7,9 +7,9 @@
 (defn size-of [board] (-> (count board) Math/sqrt int))
 (defn rows-of [board] (partition (size-of board) board))
 (defn columns-of [board]
-  (loop [columns [] counter 0]
-    (if (< counter (size-of board))
-      (recur (conj columns (take-nth (size-of board) (drop counter board))) (inc counter))
+  (loop [columns [] shift 0]
+    (if (< shift (size-of board))
+      (recur (conj columns (take-nth (size-of board) (drop shift board))) (inc shift))
       columns)))
 
 (defn bingo? [{:keys [board draw]}]
