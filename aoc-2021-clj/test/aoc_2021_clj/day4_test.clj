@@ -13,8 +13,7 @@
     (is (true? (bingo? {:board [1 2 3 4] :draw [4 3]})) "horizontal win out of order")
     (is (true? (bingo? {:board [1 2 3 4] :draw [1 3]})) "2x2 vertical win")
     (is (true? (bingo? {:board (range 1 10) :draw [1 4 7]})) " 3x3 vertical win"))
-    ; todo diagonal win
-  
+
   (testing "it has a loser"
     (is (false? (bingo? {:board [0] :draw [1]}))))
 
