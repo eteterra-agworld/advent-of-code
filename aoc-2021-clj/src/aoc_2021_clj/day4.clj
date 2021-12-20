@@ -1,75 +1,70 @@
 (ns aoc-2021-clj.day4
   (:require [clojure.string :as str]))
 
-(defn filter-out [draw from]
-  (filter (complement (into #{} draw)) from))
+(defn filter-out [mask from]
+  (filter (complement (into #{} mask)) from))
 
 ; board
-(defn size-of [board] (-> (count board) Math/sqrt int))
-(defn rows-of [board] (partition (size-of board) board))
-(defn columns-of [board]
-  (loop [columns [] shift 0]
+(defn size-of [board] (-> board count Math/sqrt int))
+(defn rows-of [board] (-> board size-of (partition board)))
+(defn columns-of 
+  "shift through the board from left to right and take every nth item."
+  [board]
+  (loop [shift 0 columns []]
     (if (< shift (size-of board))
-      (recur (conj columns (take-nth (size-of board) (drop shift board))) (inc shift))
+      (recur (inc shift) (conj columns (take-nth (size-of board) (drop shift board))))
       columns)))
 
 ; win conditions
-(defn entire-line-marked-off? [lines draw]
-  (->> lines (map #(filter-out draw %)) (some empty?) (boolean)))
+(defn line-drawn? [lines draws]
+  (->> lines (map (partial filter-out draws)) (some empty?) true?))
 
-(defn horizontal-win? [board draw]
-  (entire-line-marked-off? (rows-of board) draw))
+(defn horizontal-win? [board draws] (line-drawn? (rows-of board) draws))
+(defn vertical-win? [board draws] (line-drawn? (columns-of board) draws))
 
-(defn vertical-win? [board draw]
-  (entire-line-marked-off? (columns-of board) draw))
-
-(defn bingo? [{:keys [board draw]}]
-  (or (horizontal-win? board draw) (vertical-win? board draw)))
-
+(defn bingo? [board draws] 
+  (or (horizontal-win? board draws) (vertical-win? board draws)))
 (def bingo?-memo (memoize bingo?))
 
-(defn play [boards numbers]
-  (loop [draw []]
-    (let [winners (filter #(bingo?-memo {:board % :draw draw}) boards)]
-      (if (empty? winners)
-        (recur (take (-> draw count inc) numbers))
-        [winners draw]))))
+(defn play 
+  "keep playing until there are one or more winners."
+  [boards numbers]
+  (loop [draws []]
+    (let [winners (filter #(bingo?-memo % draws) boards)]
+      (cond
+        (empty? winners) (recur (take (-> draws count inc) numbers))
+        :else [winners draws]))))
 
-(defn score [{:keys [board draw]}]
-  (* (apply + (filter-out draw board)) (last draw)))
+(defn score [board draws]
+  (* (apply + (filter-out draws board)) (last draws)))
 
 ; parse input
 (def read-file (comp str/split-lines slurp))
 
-(defn lines
-  "split input file into groups based on empty lines"
-  [input]
+(defn lines [input]
   (->> (partition-by empty? input) (remove #(empty? (first %)))))
 
-(defn parse-board
-  "parse list of numbers from multiple lines representing rows of a single board"
-  [board]
+(defn parse-board [board]
   (map #(Integer/parseInt %) (str/split (str/join, " " (map str/trim board)) #"\s+")))
 
-(defn parse
-  "parse input into map of draw numbers and boards"
-  [lines]
-  {:numbers (map #(Integer/parseInt %) (str/split (first (first lines)) #",")) :boards (map parse-board (rest lines))})
+(defn parse [lines]
+  {:numbers (map #(Integer/parseInt %) (str/split (first (first lines)) #",")) 
+   :boards (map parse-board (rest lines))})
 
 ; part 1
 (defn first-board-to-win [boards numbers]
-  (let [[winners draw] (play boards numbers)]
-    (score {:board (first winners) :draw draw})))
+  (let [[winners draws] (play boards numbers)]
+    (score (first winners) draws)))
 
 ; part 2
 (defn last-board-to-win [all-boards numbers]
   (loop [boards all-boards]
-    (let [[winners draw] (play boards numbers)]
-      (if (= 1 (count boards))
-        (score {:board (first winners) :draw draw})
-        (recur (filter-out winners boards))))))
+    (let [[winners draws] (play boards numbers)]
+      (cond
+        (= 1 (count boards)) (score (first winners) draws)
+        :else (recur (filter-out winners boards))))))
 
 (defn answers []
   (let [{numbers :numbers boards :boards} (-> "files/day4.txt" read-file lines parse)]
-    (println "Answer 1:" (first-board-to-win boards numbers))
-    (println "Answer 2:" (last-board-to-win boards numbers))))
+    (println "Answer 1:" (time (first-board-to-win boards numbers)))
+    (println "Answer 2:" (time (last-board-to-win boards numbers)))))
